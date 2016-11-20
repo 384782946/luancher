@@ -1,0 +1,9 @@
+<RCC>
+  <qresource>
+    <file>images/run.png</file>
+    <file>images/add.png</file>
+    <file>images/apply.png</file>
+    <file>images/delete.png</file>
+    <file>images/icon.png</file>
+  </qresource>
+</RCC>
