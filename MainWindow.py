@@ -143,6 +143,9 @@ class MainWindow(QWidget):
             QMessageBox.warning(self, '警告', '请先选择要删除的配置项！')
             return
         process = self.processDict.pop(QString2str(name))
+        for action in self.menu_run.actions():
+            if action.text() == name:
+                self.menu_run.removeAction(action)
         self.ui.cb_process.removeItem(index)
         configFilePath = self.config_dir() + os.sep + QString2str(name) + '.json'
         os.remove(configFilePath)
