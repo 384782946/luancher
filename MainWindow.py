@@ -8,8 +8,8 @@
 
 from PyQt4.QtGui import QWidget,QSystemTrayIcon,QIcon,QCloseEvent,QMenu,QAction,QInputDialog,QMessageBox,\
     QFileDialog,QTableWidgetItem
-from PyQt4.QtCore import QDir
-from PyQt4 import QtGui
+from PyQt4.QtCore import QDir,QEvent,QObject,QTimer
+from PyQt4 import QtGui,QtCore
 from ui_MainWindow import Ui_MainWindow
 from Process import Process
 import os
@@ -52,7 +52,24 @@ class MainWindow(QWidget):
         self.ui.le_desc.textEdited.connect(self.on_edited)
         self.ui.le_exe.textEdited.connect(self.on_edited)
         self.ui.cb_process.currentIndexChanged.connect(self.on_index_changed)
+        self.ui.le_exe.installEventFilter(self)
         self.init()
+
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.DragEnter:
+            # we need to accept this event explicitly to be able to receive QDropEvents!
+            event.accept()
+        if event.type() == QEvent.Drop:
+            md = event.mimeData()
+            urls = md.urls()
+            if (urls and urls[0].scheme() == 'file'):
+                # for some reason, this doubles up the intro slash
+                filepath = urls[0].path().mid(1)
+                self.ui.le_exe.setText(filepath)
+                self.modify = True
+                self.ui.btn_apply.setEnabled(True)
+            event.accept()
+        return QObject.eventFilter(self, obj, event)
 
     def showMessage(self,msg):
         self.systemTray.showMessage('Launcher',msg,QSystemTrayIcon.Information,10000)
@@ -71,16 +88,20 @@ class MainWindow(QWidget):
 
     def on_edited(self):
         self.modify = True
+        self.ui.btn_apply.setEnabled(True)
 
     def on_apply(self):
         if self.currentProcess is None:
+            QMessageBox.warning(self, '警告', '未选择有效启动项，无法完成保存！')
             return
         args = self.ui.le_args.text()
         exe = self.ui.le_exe.text()
         desc = self.ui.le_desc.text()
+        isInherit = self.ui.cb_inheri.checkState() == QtCore.Qt.Checked
         self.currentProcess.setArgs(QString2str(args))
         self.currentProcess.setExe(QString2str(exe))
         self.currentProcess.setDesc(QString2str(desc))
+        self.currentProcess.setIsInherit(isInherit)
         envs = {}
         for i in range(self.ui.tw_envs.rowCount()):
             key = self.ui.tw_envs.item(i,0).text()
@@ -93,6 +114,8 @@ class MainWindow(QWidget):
         with open(configFilePath, 'w+') as f:
             f.write(self.currentProcess.save())
         self.modify = False
+        self.ui.btn_apply.setEnabled(False)
+        QMessageBox.information(self,'提示','已保存！')
 
     def on_add(self):
         ret = QInputDialog.getText(self,'请输入启动项目名称','名称')
@@ -102,7 +125,7 @@ class MainWindow(QWidget):
         if name.isEmpty():
             return
         if self.processDict.has_key(QString2str(name)):
-            QMessageBox.warning(self,'提示','该启动项已存在！')
+            QMessageBox.warning(self,'警告','该启动项已存在！')
             return
         curProcess = Process()
         curProcess.setName(QString2str(name))
@@ -116,6 +139,9 @@ class MainWindow(QWidget):
     def on_delete(self):
         name = self.ui.cb_process.currentText()
         index = self.ui.cb_process.currentIndex()
+        if not self.processDict.has_key(QString2str(name)):
+            QMessageBox.warning(self, '警告', '请先选择要删除的配置项！')
+            return
         process = self.processDict.pop(QString2str(name))
         self.ui.cb_process.removeItem(index)
         configFilePath = self.config_dir() + os.sep + QString2str(name) + '.json'
@@ -134,11 +160,13 @@ class MainWindow(QWidget):
     def on_env_add(self):
         self.ui.tw_envs.setRowCount(self.ui.tw_envs.rowCount()+1)
         self.modify = True
+        self.ui.btn_apply.setEnabled(True)
 
     def on_env_del(self):
         index = self.ui.tw_envs.currentRow()
         self.ui.tw_envs.removeRow(index)
         self.modify = True
+        self.ui.btn_apply.setEnabled(True)
 
     def on_run(self):
         if self.modify and QMessageBox.question(self,'提示','启动项已修改，是否保存？',QMessageBox.Yes|QMessageBox.No) == QMessageBox.Yes:
@@ -150,6 +178,8 @@ class MainWindow(QWidget):
                 self.showMessage(u'%s启动项已执行' % process.getName())
             else:
                 self.showMessage(u'%s启动项执行失败，请检查配置' % process.getName())
+        else:
+            QMessageBox.warning(self,'警告','请先选择要运行的启动项！')
 
     def on_action_run(self):
         name = self.sender().text()
@@ -159,10 +189,14 @@ class MainWindow(QWidget):
                 self.showMessage(u'%s启动项已执行' % process.getName())
             else:
                 self.showMessage(u'%s启动项执行失败，请检查配置' % process.getName())
+        else:
+            QMessageBox.warning(self, '警告', '请先选择要运行的启动项！')
 
     def on_open(self):
         filePath = QFileDialog.getOpenFileName(self,'选择程序')
         self.ui.le_exe.setText(filePath)
+        self.modify = True
+        self.ui.btn_apply.setEnabled(True)
 
     def closeEvent(self, event):
         event.ignore()
@@ -176,6 +210,7 @@ class MainWindow(QWidget):
 
     def init(self):
         self.modify = False
+        self.ui.btn_apply.setEnabled(False)
         self.currentProcess = None
         self.processDict = {}
         items = os.listdir(self.config_dir())
@@ -187,7 +222,6 @@ class MainWindow(QWidget):
                     process = Process()
                     if process.load(content):
                         self.add_item(process)
-        self.ui.cb_process.setCurrentIndex(0)
 
     def reset(self):
         self.ui.le_args.setText('')
@@ -196,6 +230,7 @@ class MainWindow(QWidget):
         self.ui.tw_envs.clear()
         self.ui.tw_envs.setRowCount(0)
         self.modify = False
+        self.ui.btn_apply.setEnabled(False)
 
     def display(self,process):
         self.ui.le_args.setText(process.getArgs())

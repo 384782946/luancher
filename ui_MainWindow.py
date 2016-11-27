@@ -25,6 +25,7 @@ except AttributeError:
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
+        MainWindow.setEnabled(True)
         MainWindow.resize(1033, 752)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/images/icon.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -637,7 +638,7 @@ class Ui_MainWindow(object):
 "    padding-left: 10px;\n"
 "    padding-right: 10px;\n"
 "    border-radius: 2px;\n"
-"    color: #454545;\n"
+"    color: #999999;\n"
 "}\n"
 "\n"
 "QPushButton:focus {\n"
@@ -1259,11 +1260,9 @@ class Ui_MainWindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.cb_process.sizePolicy().hasHeightForWidth())
         self.cb_process.setSizePolicy(sizePolicy)
-        self.cb_process.setMinimumSize(QtCore.QSize(200, 0))
+        self.cb_process.setMinimumSize(QtCore.QSize(87, 0))
         self.cb_process.setObjectName(_fromUtf8("cb_process"))
         self.horizontalLayout_6.addWidget(self.cb_process)
-        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout_6.addItem(spacerItem)
         self.btn_run = QtGui.QPushButton(MainWindow)
         icon1 = QtGui.QIcon()
         icon1.addPixmap(QtGui.QPixmap(_fromUtf8(":/images/run.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -1271,6 +1270,8 @@ class Ui_MainWindow(object):
         self.btn_run.setIconSize(QtCore.QSize(24, 24))
         self.btn_run.setObjectName(_fromUtf8("btn_run"))
         self.horizontalLayout_6.addWidget(self.btn_run)
+        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_6.addItem(spacerItem)
         self.btn_add = QtGui.QPushButton(MainWindow)
         icon2 = QtGui.QIcon()
         icon2.addPixmap(QtGui.QPixmap(_fromUtf8(":/images/add.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -1284,6 +1285,7 @@ class Ui_MainWindow(object):
         self.btn_delete.setObjectName(_fromUtf8("btn_delete"))
         self.horizontalLayout_6.addWidget(self.btn_delete)
         self.btn_apply = QtGui.QPushButton(MainWindow)
+        self.btn_apply.setEnabled(False)
         icon4 = QtGui.QIcon()
         icon4.addPixmap(QtGui.QPixmap(_fromUtf8(":/images/apply.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.btn_apply.setIcon(icon4)
@@ -1362,6 +1364,9 @@ class Ui_MainWindow(object):
         self.verticalLayout_3.addWidget(self.tw_envs)
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
         self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
+        self.cb_inheri = QtGui.QCheckBox(self.groupBox)
+        self.cb_inheri.setObjectName(_fromUtf8("cb_inheri"))
+        self.horizontalLayout_2.addWidget(self.cb_inheri)
         spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_2.addItem(spacerItem1)
         self.btn_env_add = QtGui.QPushButton(self.groupBox)
@@ -1391,7 +1396,8 @@ class Ui_MainWindow(object):
         self.btn_run.setText(_translate("MainWindow", "启动", None))
         self.btn_add.setText(_translate("MainWindow", "新增", None))
         self.btn_delete.setText(_translate("MainWindow", "删除", None))
-        self.btn_apply.setText(_translate("MainWindow", "修改", None))
+        self.btn_apply.setText(_translate("MainWindow", "保存", None))
+        self.btn_apply.setShortcut(_translate("MainWindow", "Ctrl+S", None))
         self.groupBox_3.setTitle(_translate("MainWindow", "启动项配置", None))
         self.label_3.setText(_translate("MainWindow", "应用程序：", None))
         self.btn_open.setText(_translate("MainWindow", "...", None))
@@ -1402,5 +1408,6 @@ class Ui_MainWindow(object):
         item.setText(_translate("MainWindow", "名称", None))
         item = self.tw_envs.horizontalHeaderItem(1)
         item.setText(_translate("MainWindow", "值", None))
+        self.cb_inheri.setText(_translate("MainWindow", "继承系统变量", None))
 
 import main_rc

@@ -15,6 +15,13 @@ class Process():
         self.config['envs'] = {}
         self.config['exe'] = ''
         self.config['args'] = ''
+        self.config['inherit_sys_envs'] = True
+
+    def setIsInherit(self,inherit):
+        self.config['inherit_sys_envs'] = inherit
+
+    def getIsInherit(self):
+        return self.config['inherit_sys_envs']
 
     def setName(self,name):
         self.config['name'] = name
@@ -54,8 +61,14 @@ class Process():
 
     def load(self,content):
         config = json.loads(content)
-        if config.has_key('version') and config['version'] == CURRENT_VERSION:
-            self.config = config
+        if isinstance(config,dict) and config.has_key('version') and config['version'] == CURRENT_VERSION:
+            self.config['version'] = config
+            self.config['name'] = config.get('name','None')
+            self.config['desc'] = config.get('desc','')
+            self.config['envs'] = config.get('envs',{})
+            self.config['exe'] = config.get('exe','')
+            self.config['args'] = config.get('args','')
+            self.config['inherit_sys_envs'] = config.get('inherit_sys_envs',True)
             return True
         return False
 
@@ -65,7 +78,10 @@ class Process():
     def start(self):
         if len(self.getExe()) == 0:
             return False
-        envs = os.environ.copy()
+        if self.getIsInherit():
+            envs = os.environ.copy()
+        else:
+            envs = {}
         custom_envs = self.getEnvs()
         for key in custom_envs.keys():
             envs[key.encode('utf-8')] = custom_envs[key].encode('utf-8')

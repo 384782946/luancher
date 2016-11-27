@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QWidget" name="MainWindow">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -626,7 +629,7 @@ QPushButton:disabled
     padding-left: 10px;
     padding-right: 10px;
     border-radius: 2px;
-    color: #454545;
+    color: #999999;
 }
 
 QPushButton:focus {
@@ -1262,24 +1265,11 @@ QProgressBar::chunk {
        </property>
        <property name="minimumSize">
         <size>
-         <width>200</width>
+         <width>87</width>
          <height>0</height>
         </size>
        </property>
       </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
      </item>
      <item>
       <widget class="QPushButton" name="btn_run">
@@ -1297,6 +1287,19 @@ QProgressBar::chunk {
         </size>
        </property>
       </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
      <item>
       <widget class="QPushButton" name="btn_add">
@@ -1322,12 +1325,18 @@ QProgressBar::chunk {
      </item>
      <item>
       <widget class="QPushButton" name="btn_apply">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
-        <string>修改</string>
+        <string>保存</string>
        </property>
        <property name="icon">
         <iconset resource="main.qrc">
          <normaloff>:/images/apply.png</normaloff>:/images/apply.png</iconset>
+       </property>
+       <property name="shortcut">
+        <string>Ctrl+S</string>
        </property>
       </widget>
      </item>
@@ -1457,6 +1466,13 @@ QProgressBar::chunk {
            </item>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <item>
+              <widget class="QCheckBox" name="cb_inheri">
+               <property name="text">
+                <string>继承系统变量</string>
+               </property>
+              </widget>
+             </item>
              <item>
               <spacer name="horizontalSpacer_3">
                <property name="orientation">
