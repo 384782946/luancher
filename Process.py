@@ -62,7 +62,7 @@ class Process():
     def load(self,content):
         config = json.loads(content)
         if isinstance(config,dict) and config.has_key('version') and config['version'] == CURRENT_VERSION:
-            self.config['version'] = config
+            #self.config['version'] = config.get('version',-1)
             self.config['name'] = config.get('name','None')
             self.config['desc'] = config.get('desc','')
             self.config['envs'] = config.get('envs',{})
