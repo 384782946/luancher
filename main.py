@@ -5,7 +5,6 @@ from PyQt4.QtCore import QTextCodec
 from MainWindow import MainWindow
 import sys,os
 
-
 pwd = './'
 
 def main():

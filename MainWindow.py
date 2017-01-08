@@ -7,8 +7,8 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4.QtGui import QWidget,QSystemTrayIcon,QIcon,QCloseEvent,QMenu,QAction,QInputDialog,QMessageBox,\
-    QFileDialog,QTableWidgetItem
-from PyQt4.QtCore import QDir,QEvent,QObject,QTimer
+    QFileDialog,QTableWidgetItem,QApplication
+from PyQt4.QtCore import QDir,QEvent,QObject,QSettings,QVariant,QString
 from PyQt4 import QtGui,QtCore
 from ui_MainWindow import Ui_MainWindow
 from Process import Process
@@ -27,15 +27,21 @@ class MainWindow(QWidget):
 
         self.systemTray = QSystemTrayIcon(self)
         self.systemTray.setIcon(QIcon(':/images/icon.png'))
-        act_setting = QAction('设置',self)
+        self.act_autostart = QAction('开机启动',self)
+        self.act_autostart.setCheckable(True)
+        is_autostart = self.is_autostart()
+        self.act_autostart.setChecked(is_autostart)
+        self.act_autostart.triggered.connect(self.on_autostart)
+        act_setting = QAction('设置启动项',self)
         act_setting.triggered.connect(self.on_settings)
         act_exit = QAction('退出',self)
         act_exit.triggered.connect(self.on_exit)
         self.menu_run = QMenu('运行',self)
         menu = QMenu('菜单',self)
         menu.addMenu(self.menu_run)
-        menu.addSeparator()
         menu.addAction(act_setting)
+        menu.addSeparator()
+        menu.addAction(self.act_autostart)
         menu.addAction(act_exit)
         self.systemTray.setContextMenu(menu)
         self.systemTray.show()
@@ -245,3 +251,24 @@ class MainWindow(QWidget):
             self.ui.tw_envs.setRowCount(row+1)
             self.ui.tw_envs.setItem(row,0,QTableWidgetItem(key))
             self.ui.tw_envs.setItem(row, 1, QTableWidgetItem(envs[key]))
+
+    def on_autostart(self):
+        if self.act_autostart.isChecked():
+            self.set_autostart(True)
+            self.showMessage('已设置开机启动')
+        else:
+            self.set_autostart(False)
+            self.showMessage('已取消开机启动')
+
+    def is_autostart(self):
+        reg = QSettings("HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", QSettings.NativeFormat)
+        return reg.contains("launcher")
+
+    def set_autostart(self,auto):
+        path = QApplication.applicationFilePath()
+        path = QDir.toNativeSeparators(path)
+        reg = QSettings("HKEY_CURRENT_USER\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run",QSettings.NativeFormat)
+        if auto is True:
+            reg.setValue("launcher",QVariant(QString('"%1"').arg(path)))
+        else:
+            reg.remove("launcher")
