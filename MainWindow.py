@@ -81,9 +81,10 @@ class MainWindow(QWidget):
         self.systemTray.showMessage('Launcher',msg,QSystemTrayIcon.Information,10000)
 
     def config_dir(self):
-        confd = os.getcwd() + os.sep + 'configs'
+        confd = QString2str(QApplication.applicationDirPath()) + os.sep + 'configs'
         dir = QDir(confd)
-        dir.mkpath(confd)
+        if not dir.exists():
+            dir.mkpath(confd)
         return confd
 
     def on_settings(self):
@@ -222,7 +223,8 @@ class MainWindow(QWidget):
         self.ui.btn_apply.setEnabled(False)
         self.currentProcess = None
         self.processDict = {}
-        items = os.listdir(self.config_dir())
+        config_dir = self.config_dir()
+        items = os.listdir(config_dir)
         for item in items:
             currentPath = self.config_dir()  + os.sep + item
             if not os.path.isdir(currentPath) and os.path.exists(currentPath):
